@@ -14,9 +14,10 @@
  *
  * 	Version History
  * 	1.0.0	03/07/2019	Initial release
- *	1.0.1	03/08/2019	Added lamps off in Sleeep Mode
+ *	1.0.1	03/08/2019	Added lamps off in Sleep Mode
+ *	1.0.2	03/09/2019	Fixed Sleep --> Night
  */
-def getVersionNum() { return "1.0.0" }
+def getVersionNum() { return "1.0.2" }
 private def getVersionLabel() { return "${app.name} (${app.label}), v${getVersionNum()}" }
  
 definition(
@@ -60,9 +61,9 @@ def mainPage() {
                 if (settings.locationModeLED != null) {
 					input "locModeHomeColor", "enum", title: "Mode Home Color", required: false, options: HSColorMap()
 					input "locModeAwayColor", "enum", title: "Mode Away Color", required: false, options: HSColorMap()
-					input "locModeSleepColor", "enum", title: "Mode Sleep Color", required: false, options: HSColorMap(), submitOnChange: true
+					input "locModeSleepColor", "enum", title: "Mode Night Color", required: false, options: HSColorMap(), submitOnChange: true
                     if (settings.locModeSleepColor != null) {
-                    	input "statusOffModeSleep", "bool", title: "Status LEDs off in Sleep Mode", required: true, submitOnChange: true
+                    	input "statusOffModeSleep", "bool", title: "Status LEDs off in Night Mode", required: true, submitOnChange: true
                         if (settings.statusOffModeSleep) {
                         	input "statusOffDelay", "number", title: "LEDs off delay (minutes)", required: true, defaultValue: 10
                         }
@@ -230,10 +231,10 @@ def SHMChangeHandler(evt = null) {
         log.trace "SHMChangeHandler(${theValue})"
     }
 	switch (theValue) {
-		case 'Away': 
+		case 'away': 
 			if (settings.SHMAwayColor) 	theColor = settings.SHMAwayColor
 			break;
-		case 'Stay':
+		case 'stay':
 			if (settings.SHMStayColor) 	theColor = settings.SHMStayColor
 			break;
 		case 'off':
@@ -244,7 +245,7 @@ def SHMChangeHandler(evt = null) {
 			break;
 	}
     updateLed(settings.SHMLED, theColor, false)
-    if (settings.statusOffModeSleep && (location.mode == 'Sleep')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
+    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
 }
 
 def modeChangeHandler(evt = null) {
@@ -264,7 +265,7 @@ def modeChangeHandler(evt = null) {
 		case 'Away':
 			if (settings.locModeAwayColor) 		theColor = settings.locModeAwayColor
 			break;
-		case 'Sleep':
+		case 'Night':
 			if (settings.locModeSleepColor) 	theColor = settings.locModSleepColor
 			break;
 		case 'Vacation':
@@ -277,14 +278,14 @@ def modeChangeHandler(evt = null) {
     updateLed(settings.locationModeLED, theColor, false)
     
     if (settings.statusOffModeSleep) {
-    	if (theValue == 'Sleep') {
+    	if (theValue == 'Night') {
         	if (settings.statusOffDelay != 0) {
             	runIn((settings.statusOffDelay.toInteger() * 60), setSwitchNormal, [overwrite: true])
             } else {
             	setSwitchNormal()
             }
         } else {
-        	// Not in Sleep mode any more - turn on the status LEDs again
+        	// Not in Night mode any more - turn on the status LEDs again
         	setSwitchStatus()
         }
     }
@@ -421,7 +422,7 @@ def contactChangeHandler(evt) {
             }
         }
     }
-    if (settings.statusOffModeSleep && (location.mode == 'Sleep')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
+    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
 }
 
 def lockChangeHandler(evt) {
@@ -454,5 +455,5 @@ def lockChangeHandler(evt) {
         log.debug "unlocked ${theColor}"
 	}
 	updateLed(doorIndex, theColor, false)
-    if (settings.statusOffModeSleep && (location.mode == 'Sleep')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
+    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
 }
