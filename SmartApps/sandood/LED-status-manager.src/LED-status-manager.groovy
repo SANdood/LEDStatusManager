@@ -17,8 +17,9 @@
  *	1.0.1	03/08/2019	Added lamps off in Sleep Mode
  *	1.0.2	03/09/2019	Fixed Sleep --> Night
  *	1.0.3	03/09/2019	Optimized code; added support for 'door' attribute (open, closed, opening, closing, waiting, stopped, unknown)
+ *	1.0.4	03/09/2019	Fixed hard-coded door indexes
  */
-def getVersionNum() { return "1.0.3" }
+def getVersionNum() { return "1.0.4" }
 private def getVersionLabel() { return "${app.name} (${app.label}), v${getVersionNum()}" }
  
 definition(
@@ -361,11 +362,11 @@ def contactChangeHandler(evt) {
     def isLocked = false
 	if (evt) {
         log.trace "contactChangeHandler(${evt.device.displayName}, ${evt.name}, ${evt.value})"
-        if 		(evt.device.deviceNetworkId == settings?.doorOneSensor?.deviceNetworkId) 	{ theDoor = 'doorOne'; 		doorIndex = 5; }
-        else if (evt.device.deviceNetworkId == settings?.doorTwoSensor?.deviceNetworkId) 	{ theDoor = 'doorTwo'; 		doorIndex = 6; }
-        else if (evt.device.deviceNetworkId == settings?.doorThreeSensor?.deviceNetworkId)	{ theDoor = 'doorThree'; 	doorIndex = 3; }
-        else if (evt.device.deviceNetworkId == settings?.doorFourSensor?.deviceNetworkId)	{ theDoor = 'doorFour'; 	doorIndex = 2; }
-        else if (evt.device.deviceNetworkId == settings?.doorFiveSensor?.deviceNetworkId) 	{ theDoor = 'doorFive'; 	doorIndex = 1; }
+        if 		(evt.device.deviceNetworkId == settings?.doorOneSensor?.deviceNetworkId) 	{ theDoor = 'doorOne'; 		doorIndex = settings.doorOneLED.toInteger(); }
+        else if (evt.device.deviceNetworkId == settings?.doorTwoSensor?.deviceNetworkId) 	{ theDoor = 'doorTwo'; 		doorIndex = settings.doorTwoLED.toInteger(); }
+        else if (evt.device.deviceNetworkId == settings?.doorThreeSensor?.deviceNetworkId)	{ theDoor = 'doorThree'; 	doorIndex = settings.doorThreeLED.toInteger(); }
+        else if (evt.device.deviceNetworkId == settings?.doorFourSensor?.deviceNetworkId)	{ theDoor = 'doorFour'; 	doorIndex = settings.doorFourLED.toInteger(); }
+        else if (evt.device.deviceNetworkId == settings?.doorFiveSensor?.deviceNetworkId) 	{ theDoor = 'doorFive'; 	doorIndex = settings.doorFiveLED.toInteger(); }
         if (!theDoor) {
             log.warn "Unknown contact sensor changed"
             return
@@ -403,14 +404,12 @@ def contactChangeHandler(evt) {
     	log.trace "contactChangeHandler(null)"
     	// Need to refresh ALL the door indicators
         def theDoors = ['doorOne', 'doorTwo', 'doorThree', 'doorFour', 'doorFive']
-        def doorIndexes = [5, 4, 3, 2, 1]
         isLocked = false
-        int i = 0
         theDoors.each { it ->
         	theDoor = it
             i++
             if (settings."${theDoor}Sensor") {
-                doorIndex = doorIndexes[i]
+                doorIndex = settings."${theDoor}LED".toInteger()
                 theValue = settings."${theDoor}Sensor".hasAttribute('door') ? settings."${theDoor}Sensor".currentValue('door') : settings."${theDoor}Sensor".currentValue('contact')
                 if ((theValue == 'open') && settings."${theDoor}OpenColor") {
                     updateLed(doorIndex, settings."${theDoor}OpenColor", false)
@@ -433,24 +432,24 @@ def contactChangeHandler(evt) {
                 } else if ((theValue == 'unknown') && (settings."${theDoor}UnknownColor")) {
                 	updateLed(doorIndex, settings."${theDoor}UnknownColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}UnknownColor" != 0)))
                 } else {
-                	log.warn "Unknown door/contact state: ${theValue}"
+                	log.warn "Unknown door/contact state: ${theValue}, for ${theDoor}(${doorIndex})"
                     updateLed(doorIndex, 0, false)
                 }
             }
         }
     }
-    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
+    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 15, setSwitchNormal, [overwrite: true] ) 
 }
 
 def lockChangeHandler(evt) {
 	log.trace "lockChangeHandler(${evt.device.displayName}, ${evt.name}, ${evt.value})"
 	def theDoor = null
 	int doorIndex
-	if 		(evt.device.deviceNetworkId == settings?.doorOneLock?.deviceNetworkId) 		{ theDoor = 'doorOne'; 		doorIndex = 5; }
-	else if (evt.device.deviceNetworkId == settings?.doorTwoLock?.deviceNetworkId) 		{ theDoor = 'doorTwo'; 		doorIndex = 6; }
-	else if (evt.device.deviceNetworkId == settings?.doorThreeLock?.deviceNetworkId)	{ theDoor = 'doorThree'; 	doorIndex = 3; }
-	else if (evt.device.deviceNetworkId == settings?.doorFourLock?.deviceNetworkId) 	{ theDoor = 'doorFour'; 	doorIndex = 2; }
-	else if (evt.device.deviceNetworkId == settings?.doorFiveLock?.deviceNetworkId) 	{ theDoor = 'doorFive'; 	doorIndex = 1; }
+	if 		(evt.device.deviceNetworkId == settings?.doorOneLock?.deviceNetworkId) 		{ theDoor = 'doorOne'; 		doorIndex = settings.doorOneLED.toInteger(); }
+	else if (evt.device.deviceNetworkId == settings?.doorTwoLock?.deviceNetworkId) 		{ theDoor = 'doorTwo'; 		doorIndex = settings.doorTwoLED.toInteger(); }
+	else if (evt.device.deviceNetworkId == settings?.doorThreeLock?.deviceNetworkId)	{ theDoor = 'doorThree'; 	doorIndex = settings.doorThreeLED.toInteger(); }
+	else if (evt.device.deviceNetworkId == settings?.doorFourLock?.deviceNetworkId) 	{ theDoor = 'doorFour'; 	doorIndex = settings.doorFourLED.toInteger(); }
+	else if (evt.device.deviceNetworkId == settings?.doorFiveLock?.deviceNetworkId) 	{ theDoor = 'doorFive'; 	doorIndex = settings.doorFiveLED.toInteger(); }
 	if (theDoor == null) {
 		log.warn "Unknown lock changed ${theDoor} ${doorIndex}"
 		return
@@ -472,5 +471,5 @@ def lockChangeHandler(evt) {
         log.debug "unlocked ${theColor}"
 	}
 	updateLed(doorIndex, theColor, false)
-    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 10, setSwitchNormal, [overwrite: true] ) 
+    if (settings.statusOffModeSleep && (location.mode == 'Night')) runIn( 15, setSwitchNormal, [overwrite: true] ) 
 }
