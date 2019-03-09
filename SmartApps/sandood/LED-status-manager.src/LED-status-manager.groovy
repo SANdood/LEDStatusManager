@@ -16,8 +16,9 @@
  * 	1.0.0	03/07/2019	Initial release
  *	1.0.1	03/08/2019	Added lamps off in Sleep Mode
  *	1.0.2	03/09/2019	Fixed Sleep --> Night
+ *	1.0.3	03/09/2019	Optimized code; added support for 'door' attribute (open, closed, opening, closing, waiting, stopped, unknown)
  */
-def getVersionNum() { return "1.0.2" }
+def getVersionNum() { return "1.0.3" }
 private def getVersionLabel() { return "${app.name} (${app.label}), v${getVersionNum()}" }
  
 definition(
@@ -74,9 +75,17 @@ def mainPage() {
             section("Door 1...") {
 				input "doorOneLED", "number", title: "Door 1 LED #", range: "1..7", multiple: false, required: false, submitOnChange: true
             	if (settings.doorOneLED != null) {
-					input "doorOneSensor", "capability.contactSensor", title: "Door 1 Contact Sensor", multiple: false, required: true
+					input "doorOneSensor", "capability.contactSensor", title: "Door 1 Contact Sensor", multiple: false, required: true, submitOnChange: true
 					input "doorOneOpenColor", "enum", title: "Door 1 Open Color", required: true, options: HSColorMap()
 					input "doorOneClosedColor", "enum", title: "Door 1 Closed Color", required: true, options: HSColorMap()
+                    if (settings?.doorOneSensor?.hasAttribute('door')) {
+                    	input "doorOneOpeningColor", "enum", title: "Door 1 Opening Color", required: false, options: HSColorMap()
+                        input "doorOneClosingColor", "enum", title: "Door 1 Closing Color", required: false, options: HSColorMap()
+                        input "doorOneWaitingColor", "enum", title: "Door 1 Waiting Color", required: false, options: HSColorMap()
+                        input "doorOneStoppedColor", "enum", title: "Door 1 Stopped Color", required: false, options: HSColorMap()
+                        input "doorOneUnknownColor", "enum", title: "Door 1 Unknown Color", required: false, options: HSColorMap()
+                        input "doorOneFlashWarning", "bool", title: "Flash LED for warnings?", required: false, defaultValue: false
+                    }
 					input "doorOneLock", "capability.lock", title: "Door 1 Lock", multiple: false, required: false, submitOnChange: true
 					if (settings.doorOneLock != null) {
 						input "doorOneLockedColor", "enum", title: "Door 1 Locked Color", required: true, options: HSColorMap()
@@ -86,9 +95,17 @@ def mainPage() {
 			section("Door 2...") {
 				input "doorTwoLED", "number", title: "Door 2 LED #", range: "1..7", multiple: false, required: false, submitOnChange: true
             	if (settings.doorTwoLED != null) {
-					input "doorTwoSensor", "capability.contactSensor", title: "Door 2 Contact Sensor", multiple: false, required: true
+					input "doorTwoSensor", "capability.contactSensor", title: "Door 2 Contact Sensor", multiple: false, required: true, submitOnChange: true
 					input "doorTwoOpenColor", "enum", title: "Door 2 Open Color", required: true, options: HSColorMap()
 					input "doorTwoClosedColor", "enum", title: "Door 2 Closed Color", required: true, options: HSColorMap()
+                    if (settings?.doorTwoSensor?.hasAttribute('door')) {
+                    	input "doorTwoOpeningColor", "enum", title: "Door 2 Opening Color", required: false, options: HSColorMap()
+                        input "doorTwoClosingColor", "enum", title: "Door 2 Closing Color", required: false, options: HSColorMap()
+                        input "doorTwoWaitingColor", "enum", title: "Door 2 Waiting Color", required: false, options: HSColorMap()
+                        input "doorTwoStoppedColor", "enum", title: "Door 2 Stopped Color", required: false, options: HSColorMap()
+                        input "doorTwoUnknownColor", "enum", title: "Door 2 Unknown Color", required: false, options: HSColorMap()
+                        input "doorTwoFlashWarning", "bool", title: "Flash LED for warnings?", required: false, defaultValue: false
+                    }
 					input "doorTwoLock", "capability.lock", title: "Door 2 Lock", multiple: false, required: false, submitOnChange: true
 					if (settings.doorTwoLock != null) {
 						input "doorTwoLockedColor", "enum", title: "Door 2 Locked Color", required: true, options: HSColorMap()
@@ -98,9 +115,17 @@ def mainPage() {
 			section("Door 3...") {
 				input "doorThreeLED", "number", title: "Door 3 LED #", range: "1..7", multiple: false, required: false, submitOnChange: true
             	if (settings.doorThreeLED != null) {
-					input "doorThreeSensor", "capability.contactSensor", title: "Door 3 Contact Sensor", multiple: false, required: true
+					input "doorThreeSensor", "capability.contactSensor", title: "Door 3 Contact Sensor", multiple: false, required: true, submitOnChange: true
 					input "doorThreeOpenColor", "enum", title: "Door 3 Open Color", required: true, options: HSColorMap()
 					input "doorThreeClosedColor", "enum", title: "Door 3 Closed Color", required: true, options: HSColorMap()
+                    if (settings?.doorThreeSensor?.hasAttribute('door')) {
+                    	input "doorThreeOpeningColor", "enum", title: "Door 3 Opening Color", required: false, options: HSColorMap()
+                        input "doorThreeClosingColor", "enum", title: "Door 3 Closing Color", required: false, options: HSColorMap()
+                        input "doorThreeWaitingColor", "enum", title: "Door 3 Waiting Color", required: false, options: HSColorMap()
+                        input "doorThreeStoppedColor", "enum", title: "Door 3 Stopped Color", required: false, options: HSColorMap()
+                        input "doorThreeUnknownColor", "enum", title: "Door 3 Unknown Color", required: false, options: HSColorMap()
+                        input "doorThreeFlashWarning", "bool", title: "Flash LED for warnings?", required: false, defaultValue: false
+                    }
 					input "doorThreeLock", "capability.lock", title: "Door 3 Lock", multiple: false, required: false, submitOnChange: true
 					if (settings.doorThreeLock != null) {
 						input "doorThreeLockedColor", "enum", title: "Door 3 Locked Color", required: true, options: HSColorMap()
@@ -110,9 +135,17 @@ def mainPage() {
 			section("Door 4...") {
 				input "doorFourLED", "number", title: "Door 4 LED #", range: "1..7", multiple: false, required: false, submitOnChange: true
             	if (settings.doorFourLED != null) {
-					input "doorFourSensor", "capability.contactSensor", title: "Door 4 Contact Sensor", multiple: false, required: true
+					input "doorFourSensor", "capability.contactSensor", title: "Door 4 Contact Sensor", multiple: false, required: true, submitOnChange: true
 					input "doorFourOpenColor", "enum", title: "Door 4 Open Color", required: true, options: HSColorMap()
 					input "doorFourClosedColor", "enum", title: "Door 4 Closed Color", required: true, options: HSColorMap()
+                    if (settings?.doorFourSensor?.hasAttribute('door')) {
+                    	input "doorFourOpeningColor", "enum", title: "Door 4 Opening Color", required: false, options: HSColorMap()
+                        input "doorFourClosingColor", "enum", title: "Door 4 Closing Color", required: false, options: HSColorMap()
+                        input "doorFourWaitingColor", "enum", title: "Door 4 Waiting Color", required: false, options: HSColorMap()
+                        input "doorFourStoppedColor", "enum", title: "Door 4 Stopped Color", required: false, options: HSColorMap()
+                        input "doorFourUnknownColor", "enum", title: "Door 4 Unknown Color", required: false, options: HSColorMap()
+                        input "doorFourFlashWarning", "bool", title: "Flash LED for warnings?", required: false, defaultValue: false
+                    }
 					input "doorFourLock", "capability.lock", title: "Door 4 Lock", multiple: false, required: false, submitOnChange: true
 					if (settings.doorFourLock != null) {
 						input "doorFourLockedColor", "enum", title: "Door 4 Locked Color", required: true, options: HSColorMap()
@@ -122,9 +155,17 @@ def mainPage() {
 			section("Door 5...") {
 				input "doorFiveLED", "number", title: "Door 5 LED #", range: "1..7", multiple: false, required: false, submitOnChange: true
             	if (settings.doorFiveLED != null) {
-					input "doorFiveSensor", "capability.contactSensor", title: "Door 5 Contact Sensor", multiple: false, required: true
+					input "doorFiveSensor", "capability.contactSensor", title: "Door 5 Contact Sensor", multiple: false, required: true, submitOnChange: true
 					input "doorFiveOpenColor", "enum", title: "Door 5 Open Color", required: true, options: HSColorMap()
 					input "doorFiveClosedColor", "enum", title: "Door 5 Closed Color", required: true, options: HSColorMap()
+                    if (settings?.doorFiveSensor?.hasAttribute('door')) {
+                    	input "doorFiveOpeningColor", "enum", title: "Door 5 Opening Color", required: false, options: HSColorMap()
+                        input "doorFiveClosingColor", "enum", title: "Door 5 Closing Color", required: false, options: HSColorMap()
+                        input "doorFiveWaitingColor", "enum", title: "Door 5 Waiting Color", required: false, options: HSColorMap()
+                        input "doorFiveStoppedColor", "enum", title: "Door 5 Stopped Color", required: false, options: HSColorMap()
+                        input "doorFiveUnknownColor", "enum", title: "Door 5 Unknown Color", required: false, options: HSColorMap()
+                        input "doorOneFlashWarning", "bool", title: "Flash LED for warnings?", required: false, defaultValue: false
+                    }
 					input "doorFiveLock", "capability.lock", title: "Door 5 Lock", multiple: false, required: false, submitOnChange: true
 					if (settings.doorFiveLock != null) {
 						input "doorFiveLockedColor", "enum", title: "Door 5 Locked Color", required: true, options: HSColorMap()
@@ -166,23 +207,43 @@ def initialize( why )
 	if (settings.SHMLED) subscribe(location, 'alarmSystemStatus', SHMChangeHandler)
 	if (settings.locationModeLED) subscribe(location, 'mode', modeChangeHandler)
 	if (settings.doorOneLED) {
-		subscribe(settings.doorOneSensor, 'contact', contactChangeHandler)
+    	if (settings.doorOneSensor.hasAttribute('door')) {
+        	subscribe(settings.doorOneSensor, 'door', contactChangeHandler)
+        } else {
+			subscribe(settings.doorOneSensor, 'contact', contactChangeHandler)
+    	}
 		if (settings.doorOneLock) subscribe(settings.doorOneLock, 'lock', lockChangeHandler)
 	}
 	if (settings.doorTwoLED) {
-		subscribe(settings.doorTwoSensor, 'contact', contactChangeHandler)
+    	if (settings.doorTwoSensor.hasAttribute('door')) {
+        	subscribe(settings.doorTwoSensor, 'door', contactChangeHandler)
+        } else {
+			subscribe(settings.doorTwoSensor, 'contact', contactChangeHandler)
+        }
 		if (settings.doorTwoLock) subscribe(settings.doorTwoLock, 'lock', lockChangeHandler)
 	}
 	if (settings.doorThreeLED) {
-		subscribe(settings.doorThreeSensor, 'contact', contactChangeHandler)
+    	if (settings.doorThreeSensor.hasAttribute('door')) {
+        	subscribe(settings.doorThreeSensor, 'door', contactChangeHandler)
+        } else {
+			subscribe(settings.doorThreeSensor, 'contact', contactChangeHandler)
+        }
 		if (settings.doorThreeLock) subscribe(settings.doorThreeLock, 'lock', lockChangeHandler)
 	}
 	if (settings.doorFourLED) {
-		subscribe(settings.doorFourSensor, 'contact', contactChangeHandler)
+    	if (settings.doorFourSensor.hasAttribute('door')) {
+        	subscribe(settings.doorFourSensor, 'door', contactChangeHandler)
+        } else {
+			subscribe(settings.doorFourSensor, 'contact', contactChangeHandler)
+        }
 		if (settings.doorFourLock) subscribe(settings.doorFourLock, 'lock', lockChangeHandler)
 	}
 	if (settings.doorFiveLED) {
-		subscribe(settings.doorFiveSensor, 'contact', contactChangeHandler)
+    	if (settings.doorFiveSensor.hasAttribute('door')) {
+        	subscribe(settings.doorFiveSensor, 'door', contactChangeHandler)
+        } else {
+			subscribe(settings.doorFiveSensor, 'contact', contactChangeHandler)
+        }
 		if (settings.doorFiveLock) subscribe(settings.doorFiveLock, 'lock', lockChangeHandler)
 	}
     subscribe(app, appTouch)
@@ -322,103 +383,59 @@ def contactChangeHandler(evt) {
                 if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
                 updateLed(doorIndex, theColor, false)
                 break;
+            case 'opening':
+            	if (settings."${theDoor}OpeningColor") updateLed(doorIndex, settings."${theDoor}OpeningColor", false)
+            	break;
+            case 'closing':
+            	if (settings."${theDoor}ClosingColor") updateLed(doorIndex, settings."${theDoor}ClosingColor", false)
+            	break;
+            case 'waiting':
+            	if (settings."${theDoor}WaitingColor") updateLed(doorIndex, settings."${theDoor}WaitingColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}WaitingColor" != 0)))
+            	break;
+            case 'stopped':
+            	if (settings."${theDoor}StoppedColor") updateLed(doorIndex, settings."${theDoor}StoppedColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}StoppedColor" != 0)))
+            	break;
+            case 'unknown':
+            	if (settings."${theDoor}UnknownColor") updateLed(doorIndex, settings."${theDoor}UnknownColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}UnknownColor" != 0)))
+            	break;
         }
     } else {
     	log.trace "contactChangeHandler(null)"
     	// Need to refresh ALL the door indicators
-        theDoor = 'doorOne'
+        def theDoors = ['doorOne', 'doorTwo', 'doorThree', 'doorFour', 'doorFive']
+        def doorIndexes = [5, 4, 3, 2, 1]
         isLocked = false
-        if (settings."${theDoor}Sensor") {
-        	doorIndex = 5
-        	theValue = settings."${theDoor}Sensor".currentValue('contact')
-            if (settings."${theDoor}OpenColor" && (theValue == 'open')) {
-            	updateLed(doorIndex, settings."${theDoor}OpenColor", false)
-            } else if (theValue == 'closed') {
-            	theLock = settings."${theDoor}Lock"
-        		if (theLock != null) {
-            		isLocked = (theLock.currentValue('lock') == 'locked')
-        		}
-                if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
-                if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
-                updateLed(doorIndex, theColor, false)
-            } else {
-            	updateLed(doorIndex, 0, false)
-            }
-        }
-        theDoor = 'doorTwo'
-        isLocked = false
-        if (settings."${theDoor}Sensor") {
-        	doorIndex = 4
-        	theValue = settings."${theDoor}Sensor".currentValue('contact')
-            if (settings."${theDoor}OpenColor" && (theValue == 'open')) {
-            	updateLed(doorIndex, settings."${theDoor}OpenColor", false)
-            } else if (theValue == 'closed') {
-            	theLock = settings."${theDoor}Lock"
-        		if (theLock != null) {
-            		isLocked = (theLock.currentValue('lock') == 'locked')
-        		}
-                if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
-                if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
-                updateLed(doorIndex, theColor, false)
-            } else {
-            	updateLed(doorIndex, 0, false)
-            }
-        }
-        theDoor = 'doorThree'
-        isLocked = false
-        if (settings."${theDoor}Sensor") {
-        	doorIndex = 3
-        	theValue = settings."${theDoor}Sensor".currentValue('contact')
-            if (settings."${theDoor}OpenColor" && (theValue == 'open')) {
-            	updateLed(doorIndex, settings."${theDoor}OpenColor", false)
-            } else if (theValue == 'closed') {
-            	theLock = settings."${theDoor}Lock"
-        		if (theLock != null) {
-            		isLocked = (theLock.currentValue('lock') == 'locked')
-        		}
-                if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
-                if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
-                updateLed(doorIndex, theColor, false)
-            } else {
-            	updateLed(doorIndex, 0, false)
-            }
-        }
-        theDoor = 'doorFour'
-        isLocked = false
-        if (settings."${theDoor}Sensor") {
-        	doorIndex = 2
-        	theValue = settings."${theDoor}Sensor".currentValue('contact')
-            if (settings."${theDoor}OpenColor" && (theValue == 'open')) {
-            	updateLed(doorIndex, settings."${theDoor}OpenColor", false)
-            } else if (theValue == 'closed') {
-            	theLock = settings."${theDoor}Lock"
-        		if (theLock != null) {
-            		isLocked = (theLock.currentValue('lock') == 'locked')
-        		}
-                if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
-                if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
-                updateLed(doorIndex, theColor, false)
-            } else {
-            	updateLed(doorIndex, 0, false)
-            }
-        }
-        theDoor = 'doorFive'
-        isLocked = false
-        if (settings."${theDoor}Sensor") {
-        	doorIndex = 1
-        	theValue = settings."${theDoor}Sensor".currentValue('contact')
-            if (settings."${theDoor}OpenColor" && (theValue == 'open')) {
-            	updateLed(doorIndex, settings."${theDoor}OpenColor", false)
-            } else if (theValue == 'closed') {
-            	theLock = settings."${theDoor}Lock"
-        		if (theLock != null) {
-            		isLocked = (theLock.currentValue('lock') == 'locked')
-        		}
-                if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
-                if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
-                updateLed(doorIndex, theColor, false)
-            } else {
-            	updateLed(doorIndex, 0, false)
+        int i = 0
+        theDoors.each { it ->
+        	theDoor = it
+            i++
+            if (settings."${theDoor}Sensor") {
+                doorIndex = doorIndexes[i]
+                theValue = settings."${theDoor}Sensor".hasAttribute('door') ? settings."${theDoor}Sensor".currentValue('door') : settings."${theDoor}Sensor".currentValue('contact')
+                if ((theValue == 'open') && settings."${theDoor}OpenColor") {
+                    updateLed(doorIndex, settings."${theDoor}OpenColor", false)
+                } else if (theValue == 'closed') {
+                    theLock = settings."${theDoor}Lock"
+                    if (theLock != null) {
+                        isLocked = (theLock.currentValue('lock') == 'locked')
+                    }
+                    if (settings."${theDoor}ClosedColor") theColor = settings."${theDoor}ClosedColor"
+                    if ((theLock != null) && isLocked && settings."${theDoor}LockedColor") theColor = settings."${theDoor}LockedColor"
+                    updateLed(doorIndex, theColor, false)
+                } else if ((theValue == 'opening') && settings."${theDoor}OpeningColor") {
+                	updateLed(doorIndex, settings."${theDoor}OpeningColor", false)
+                } else if ((theValue == 'closing') && settings."${theDoor}ClosingColor") {
+                	updateLed(doorIndex, settings."${theDoor}ClosingColor", false)
+                } else if ((theValue == 'waiting') && (settings."${theDoor}WaitingColor")) {
+                	updateLed(doorIndex, settings."${theDoor}WaitingColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}WaitingColor" != 0)))
+                } else if ((theValue == 'stopped') && (settings."${theDoor}StoppedColor")) {
+                	updateLed(doorIndex, settings."${theDoor}StoppedColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}StoppedColor" != 0)))
+                } else if ((theValue == 'unknown') && (settings."${theDoor}UnknownColor")) {
+                	updateLed(doorIndex, settings."${theDoor}UnknownColor", (settings."${theDoor}FlashWarning" && (settings."${theDoor}UnknownColor" != 0)))
+                } else {
+                	log.warn "Unknown door/contact state: ${theValue}"
+                    updateLed(doorIndex, 0, false)
+                }
             }
         }
     }
